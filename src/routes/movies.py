@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from database.db import db
 from database.models import Movie
@@ -16,15 +17,18 @@ def get_movies():
     return jsonify({'movies': list(map(lambda dev: dev.to_dict(), Movie.query.all()))})
 
 
+@jwt_required
 @movies.route('/movies', methods=['POST'])
 def add_movie():
-    movie = Movie()
-    movie.name = request.json['name']
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    movie = Movie(**body, author_id=user_id)
     db.session.add(movie)
     db.session.commit()
     return {'movie': movie.to_dict()}, 200
 
 
+@jwt_required
 @movies.route('/movies/<int:movie_id>', methods=['PUT'])
 def update_movie(movie_id):
     new_name = request.json['name']
@@ -37,6 +41,7 @@ def update_movie(movie_id):
     return jsonify(movie.to_dict())
 
 
+@jwt_required
 @movies.route('/movies/<int:movie_id>', methods=['DELETE'])
 def delete_movie(movie_id):
     db.session.delete(Movie.query.get(movie_id))
