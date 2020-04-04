@@ -18,6 +18,8 @@ def login():
     authorized = user.check_password(body.get('password'))
     if not authorized:
         return {'error': 'Email or password invalid'}, 401
+    user.last_login = datetime.datetime.now()
+    db.session.commit()
     expires7days = datetime.timedelta(days=7)
     expires30days = datetime.timedelta(days=30)
     access_token = create_access_token(identity=str(user.user_id), expires_delta=expires7days)
