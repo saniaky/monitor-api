@@ -16,6 +16,7 @@ itsdangerous==1.1.0
 Jinja2==2.11.1
 jsonschema==3.2.0
 MarkupSafe==1.1.1
+marshmallow==3.5.1
 mysqlclient==1.4.6
 pycparser==2.20
 PyJWT==1.7.1

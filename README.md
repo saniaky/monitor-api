@@ -30,10 +30,16 @@ Flask-Bcrypt
 Flask-JWT
     pip install flask-jwt-extended
     https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage/
+    
+marshmallow - simplified object serialization¶
+    pip install marshmallow
+    https://marshmallow.readthedocs.io/en/stable/
 
 ## First setup
 Create an environment¶
-python3 -m venv venv
+```
+$ python3 -m venv venv
+```
 
 Activate / Deactivate
 ```
