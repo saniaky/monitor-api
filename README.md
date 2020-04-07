@@ -20,10 +20,12 @@ Web Database Project (Loyola COMP-453)
 ## Dependencies
 - [Flask - web framework](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request)  
     
-- [Flask-SQLAlchemy - ORM](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)  
-    - `pip install mysqlclient`
-    - [SQLAlchemy Examples](https://www.bradcypert.com/writing-a-restful-api-in-flask-sqlalchemy/)
+- [SQLAlchemy - Object Relational Mapper](https://docs.sqlalchemy.org/en/13/orm/tutorial.html)
+    - [Query Update API](https://docs.sqlalchemy.org/en/13/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update)
 
+- [Flask-SQLAlchemy - SQLAlchemy wrapper for Flask](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)  
+    - `pip install mysqlclient`
+    - [Examples](https://www.bradcypert.com/writing-a-restful-api-in-flask-sqlalchemy/)
 - [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/)  
     - `pip install flask-bcrypt`
 
