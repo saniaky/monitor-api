@@ -22,7 +22,7 @@ CREATE TABLE `user`
     `password`                 varchar(60)  NOT NULL,
     `password_reset_token`     varchar(45)  NULL,
     `password_reset_expires`   datetime     NULL,
-    `password_age`             datetime     NULL     DEFAULT NOW(),
+    `password_age`             datetime     NOT NULL DEFAULT NOW(),
     `avatar_url`               varchar(256) NULL,
     `failed_login_attempts`    tinyint      NULL,
     `last_login`               datetime     NULL,

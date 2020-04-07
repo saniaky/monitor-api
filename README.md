@@ -2,40 +2,45 @@
 
 ## Overview
 Web Database Project (Loyola COMP-453)
-http://cnaiman.com/COMP353-453/Project/ProjectOverview.html
+- [Project requirements](http://cnaiman.com/COMP353-453/Project/ProjectOverview.html)
+- [Git Repository](https://gitlab.com/loyola-monitor)
+- [Good step-by-step tutorial](https://github.com/paurakhsharma/flask-rest-api-blog-series/blob/master/Part%20-%200/Part-0%20Hello%20Flask%20Rest%20API.md)
 
-Git Repository
-https://gitlab.com/loyola-monitor
+## Features
+- User registration
+- User login
+- Update user profile
+- Create app for monitoring
+- Update app for monitoring
 
-Good step-by-step tutorial:
-https://github.com/paurakhsharma/flask-rest-api-blog-series/blob/master/Part%20-%200/Part-0%20Hello%20Flask%20Rest%20API.md
+- Add app maintenance info
+- Add app incident info
 
-## Start developing
-source venv/bin/activate && pip install -r requirements.txt
 
 ## Dependencies
-Flask
-    https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request
+- [Flask - web framework](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request)  
     
-Flask-SQLAlchemy
-    pip install mysqlclient 
-    https://flask-sqlalchemy.palletsprojects.com/en/2.x/
-    SQLAlchemy Examples
-    https://www.bradcypert.com/writing-a-restful-api-in-flask-sqlalchemy/
+- [Flask-SQLAlchemy - ORM](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)  
+    - `pip install mysqlclient`
+    - [SQLAlchemy Examples](https://www.bradcypert.com/writing-a-restful-api-in-flask-sqlalchemy/)
 
-Flask-Bcrypt
-    pip install flask-bcrypt
-    https://flask-bcrypt.readthedocs.io/
+- [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/)  
+    - `pip install flask-bcrypt`
+
+- [Flask-JWT - manage JWT tokens](https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage/)  
+    - `pip install flask-jwt-extended`
     
-Flask-JWT
-    pip install flask-jwt-extended
-    https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage/
-    
-marshmallow - simplified object serialization¶
-    pip install marshmallow
-    https://marshmallow.readthedocs.io/en/stable/
+- [marshmallow - serialization and validation](https://marshmallow.readthedocs.io/en/stable/)  
+    - `pip install marshmallow`
+    - [Existing validators](https://marshmallow.readthedocs.io/en/stable/_modules/marshmallow/validate.html)
 
 ## First setup
+
+### Quick start
+```
+source venv/bin/activate && pip install -r requirements.txt
+```
+
 Create an environment¶
 ```
 $ python3 -m venv venv

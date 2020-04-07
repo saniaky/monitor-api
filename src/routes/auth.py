@@ -5,12 +5,13 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 
 from database.db import db
 from database.user import User
-from routes.auth_validation import RegisterSchema, LoginSchema
+from routes.auth_validation import RegisterSchema, LoginSchema, UpdateProfileSchema
 
 auth = Blueprint('auth', __name__)
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
+update_profile_schema = UpdateProfileSchema()
 
 
 @auth.route('/login', methods=['POST'])
@@ -50,4 +51,19 @@ def register():
 def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
+    if not user:
+        return {'error': 'Such user no longer exist.'}, 400
     return user.to_dict()
+
+
+@auth.route('/me', methods=['PUT'])
+@jwt_required
+def update_profile():
+    body = request.get_json()
+    errors = update_profile_schema.validate(body)
+    if errors:
+        return jsonify({'error': errors})
+    user_id = get_jwt_identity()
+    User.query.filter_by(user_id=user_id).update(body)
+    db.session.commit()
+    return {'result': 'ok'}
