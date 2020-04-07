@@ -5,17 +5,18 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 
 from database.db import db
 from database.user import User
-from routes.auth_validation import RegisterSchema
+from routes.auth_validation import RegisterSchema, LoginSchema
 
 auth = Blueprint('auth', __name__)
 
+login_schema = LoginSchema()
 register_schema = RegisterSchema()
 
 
 @auth.route('/login', methods=['POST'])
 def login():
     body = request.get_json()
-    errors = register_schema.validate(body)
+    errors = login_schema.validate(body)
     if errors:
         return jsonify({'error': errors})
     user = User.query.filter_by(email=body.get('email')).first()
@@ -41,7 +42,7 @@ def register():
     user.hash_password()
     db.session.add(user)
     db.session.commit()
-    return {'id': user.user_id}, 201
+    return user.to_dict(), 201
 
 
 @auth.route('/me', methods=['GET'])
@@ -49,5 +50,4 @@ def register():
 def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    if not user: return {'error': 'User does not exist anymore.'}, 400
-    return {'id': user.user_id, 'email': user.email}
+    return user.to_dict()

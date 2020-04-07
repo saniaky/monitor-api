@@ -1,6 +1,16 @@
 from flask_bcrypt import generate_password_hash, check_password_hash
+from marshmallow import Schema
 
 from .db import db
+
+
+# Fields to expose
+class UserSchema(Schema):
+    class Meta:
+        fields = ('user_id', 'email', 'first_name', 'last_name', 'last_login', 'avatar_url')
+
+
+user_schema = UserSchema()
 
 
 class User(db.Model):
@@ -27,7 +37,7 @@ class User(db.Model):
         return check_password_hash(self.password, password)
 
     def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return user_schema.dump(self)
 
     def __repr__(self):
         return '<User %r>' % self.username
