@@ -7,9 +7,9 @@ from .index import index
 
 
 def init_routes(app):
-    app.register_blueprint(index)
-    app.register_blueprint(auth)
-    app.register_blueprint(apps, url_prefix='/admin')
+    app.register_blueprint(index, url_prefix='/api')
+    app.register_blueprint(auth, url_prefix='/api')
+    app.register_blueprint(apps, url_prefix='/api/admin')
 
     @app.errorhandler(400)
     def bad_request(e):

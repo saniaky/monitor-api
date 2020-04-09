@@ -19,7 +19,7 @@ def login():
     body = request.get_json()
     errors = login_schema.validate(body)
     if errors:
-        return jsonify({'error': errors})
+        return jsonify({'error': errors}), 400
     user = User.query.filter_by(email=body.get('email')).first()
     authorized = user.check_password(body.get('password'))
     if not authorized:
@@ -38,7 +38,7 @@ def register():
     body = request.get_json()
     errors = register_schema.validate(body)
     if errors:
-        return jsonify({'error': errors})
+        return jsonify({'error': errors}), 400
     user = User(**body)
     user.hash_password()
     db.session.add(user)
@@ -62,7 +62,7 @@ def update_profile():
     body = request.get_json()
     errors = update_profile_schema.validate(body)
     if errors:
-        return jsonify({'error': errors})
+        return jsonify({'error': errors}), 400
     user_id = get_jwt_identity()
     User.query.filter_by(user_id=user_id).update(body)
     db.session.commit()

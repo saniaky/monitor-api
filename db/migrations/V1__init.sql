@@ -24,6 +24,7 @@ CREATE TABLE `user`
     `password_reset_expires`   datetime     NULL,
     `password_age`             datetime     NOT NULL DEFAULT NOW(),
     `avatar_url`               varchar(256) NULL,
+    `country_id`               char(2)      NULL,
     `failed_login_attempts`    tinyint      NULL,
     `last_login`               datetime     NULL,
     `is_active`                bit          NOT NULL DEFAULT 1,
@@ -31,28 +32,30 @@ CREATE TABLE `user`
     `created_at`               datetime     NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY (`user_id`),
-    UNIQUE KEY `user_email_unique` (`email`)
+    UNIQUE KEY `user_email_unique` (`email`),
+    CONSTRAINT `fk_user_country` FOREIGN KEY (`country_id`)
+        REFERENCES `country` (`iso2`) ON DELETE RESTRICT
 );
 
 
-CREATE TABLE `team`
+CREATE TABLE `project`
 (
-    `team_id` bigint      NOT NULL,
-    `name`    varchar(15) NOT NULL,
+    `project_id` bigint      NOT NULL,
+    `name`       varchar(15) NOT NULL,
 
-    PRIMARY KEY (`team_id`)
+    PRIMARY KEY (`project_id`)
 );
 
 
-CREATE TABLE `user_team`
+CREATE TABLE `user_project`
 (
-    `user_id` bigint                      NOT NULL,
-    `team_id` bigint                      NOT NULL,
-    `role`    enum ('organizer','member') NOT NULL,
+    `user_id`    bigint                  NOT NULL,
+    `project_id` bigint                  NOT NULL,
+    `role`       enum ('admin','member') NOT NULL,
 
-    CONSTRAINT `fk_user_team_team_id` FOREIGN KEY (`team_id`)
-        REFERENCES `team` (`team_id`) ON DELETE RESTRICT,
-    CONSTRAINT `fk_user_team_user_id` FOREIGN KEY (`user_id`)
+    CONSTRAINT `fk_project_team_project_id` FOREIGN KEY (`project_id`)
+        REFERENCES `project` (`project_id`) ON DELETE RESTRICT,
+    CONSTRAINT `fk_project_team_user_id` FOREIGN KEY (`user_id`)
         REFERENCES `user` (`user_id`) ON DELETE RESTRICT
 );
 
@@ -60,17 +63,14 @@ CREATE TABLE `user_team`
 CREATE TABLE `app`
 (
     `app_id`            bigint       NOT NULL AUTO_INCREMENT,
-    `owner_id`          bigint       NOT NULL,
-    `team_id`           bigint       NULL,
+    `project_id`        bigint       NOT NULL,
     `name`              varchar(45)  NOT NULL,
     `checks_per_minute` int          NOT NULL,
-    `default_url`       varchar(512) NOT NULL,
+    `current_url`       varchar(512) NOT NULL,
 
     PRIMARY KEY (`app_id`),
-    CONSTRAINT `fk_app_team_id` FOREIGN KEY (`team_id`)
-        REFERENCES `team` (`team_id`) ON DELETE RESTRICT,
-    CONSTRAINT `fk_app_creator_id` FOREIGN KEY (`owner_id`)
-        REFERENCES `user` (`user_id`) ON DELETE RESTRICT
+    CONSTRAINT `fk_app_project_id` FOREIGN KEY (`project_id`)
+        REFERENCES `project` (`project_id`) ON DELETE RESTRICT
 );
 
 
@@ -135,4 +135,19 @@ CREATE TABLE `app_check`
         REFERENCES `app` (`app_id`) ON DELETE CASCADE,
     CONSTRAINT `fk_app_check_country` FOREIGN KEY (`checker_country`)
         REFERENCES `country` (`iso2`) ON DELETE RESTRICT
+);
+
+
+CREATE TABLE `audit_log`
+(
+    `event_id`   bigint      NOT NULL,
+    `project_id` bigint      NOT NULL,
+    `user_id`    bigint      NOT NULL,
+    `user_ip`    varchar(10) NOT NULL,
+    `time`       datetime    NOT NULL,
+    `action`     varchar(45) NOT NULL,
+
+    PRIMARY KEY (`event_id`),
+    CONSTRAINT `fk_audit_log_project_id` FOREIGN KEY (`project_id`)
+        REFERENCES `project` (`project_id`) ON DELETE CASCADE
 );
