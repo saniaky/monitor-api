@@ -4,7 +4,9 @@ from flask import request, Blueprint, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 from database.db import db
+from database.project import Project
 from database.user import User
+from database.user_project import UserProjectRole, UserProject
 from routes.auth_validation import RegisterSchema, LoginSchema, UpdateProfileSchema
 
 auth = Blueprint('auth', __name__)
@@ -41,6 +43,10 @@ def register():
         return jsonify({'error': errors}), 400
     user = User(**body)
     user.hash_password()
+
+    # Create default project for user
+    project = Project(name='Test')
+    project.members.extend([UserProject(user=user, project=project, role=UserProjectRole.ADMIN)])
     db.session.add(user)
     db.session.commit()
     return user.to_dict(), 201

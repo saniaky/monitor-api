@@ -19,21 +19,15 @@ Web Database Project (Loyola COMP-453)
 
 ## Dependencies
 - [Flask - web framework](https://flask.palletsprojects.com/en/1.1.x/api/#flask.Request)  
-    
 - [SQLAlchemy - Object Relational Mapper](https://docs.sqlalchemy.org/en/13/orm/tutorial.html)
+    - [SQLAlchemy Documentation](https://docs.sqlalchemy.org/en/13/orm/relationships.html)
     - [Query Update API](https://docs.sqlalchemy.org/en/13/orm/query.html?highlight=update#sqlalchemy.orm.query.Query.update)
-
+    - [Database Model Representation](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-viii-followers)
 - [Flask-SQLAlchemy - SQLAlchemy wrapper for Flask](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)  
-    - `pip install mysqlclient`
     - [Examples](https://www.bradcypert.com/writing-a-restful-api-in-flask-sqlalchemy/)
 - [Flask-Bcrypt](https://flask-bcrypt.readthedocs.io/)  
-    - `pip install flask-bcrypt`
-
 - [Flask-JWT - manage JWT tokens](https://flask-jwt-extended.readthedocs.io/en/stable/basic_usage/)  
-    - `pip install flask-jwt-extended`
-    
 - [marshmallow - serialization and validation](https://marshmallow.readthedocs.io/en/stable/)  
-    - `pip install marshmallow`
     - [Existing validators](https://marshmallow.readthedocs.io/en/stable/_modules/marshmallow/validate.html)
 
 ## First setup

@@ -1,5 +1,6 @@
 from marshmallow import Schema, fields, validate, validates, ValidationError
 
+from database.db import db
 from database.user import User
 
 first_name_validate = validate.Length(min=1, max=45)
@@ -28,8 +29,9 @@ class RegisterSchema(Schema):
 
     @validates('email')
     def not_exist(self, email):
-        user = User.query.filter_by(email=email).first()
-        if user:
+        # SQL: SELECT user.user_id AS user_user_id FROM user WHERE user.email = %s
+        exist = db.session.query(User.user_id).filter_by(email=email).scalar() is not None
+        if exist:
             raise ValidationError("Such email already registered.")
 
 
