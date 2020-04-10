@@ -34,15 +34,7 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # Relations
-    # projects = db.relationship(
-    #     'Project',
-    #     secondary=user_project_table,
-    #     lazy='select',
-    #     backref=db.backref('members', lazy=True)
-    # )
-
-    # bidirectional attribute/collection of "user"/"user_keywords"
+    # bidirectional attribute/collection of "user"/"user_project"
     projects = association_proxy('user_project', 'project')
 
     def hash_password(self):
@@ -58,7 +50,11 @@ class User(db.Model):
 class UserSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = User
-        exclude = ("password", 'password_reset_token')
+        exclude = (
+            'password', 'password_reset_token',
+            'password_reset_expires', 'failed_login_attempts'
+        )
 
 
 user_schema = UserSchema()
+short_user_schema = UserSchema(only=('user_id', 'first_name', 'last_name', 'avatar_url'))

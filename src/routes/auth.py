@@ -5,7 +5,7 @@ from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_requir
 
 from database.db import db
 from database.project import Project, project_schema
-from database.user import User, user_schema
+from database.user import User, user_schema, short_user_schema
 from database.user_project import UserProjectRole, UserProject
 from routes.auth_validation import RegisterSchema, LoginSchema, UpdateProfileSchema
 
@@ -80,5 +80,15 @@ def update_profile():
 def get_projects():
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).scalar()
-    print(user.projects)
     return jsonify(project_schema.dump(user.projects, many=True))
+
+
+@auth.route('/me/projects/<int:project_id>/members', methods=['GET'])
+@jwt_required
+def get_project_members(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    return jsonify(short_user_schema.dump(project.members, many=True))
