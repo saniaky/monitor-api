@@ -1,14 +1,6 @@
-from marshmallow import Schema, INCLUDE
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from .db import db
-
-
-class ProjectSchema(Schema):
-    class Meta:
-        unknown = INCLUDE
-
-
-project_schema = ProjectSchema()
 
 
 class Project(db.Model):
@@ -16,7 +8,12 @@ class Project(db.Model):
     name = db.Column(db.String(45), unique=True, nullable=False)
 
     def __repr__(self):
-        return '<Project %r>' % self.username
+        return '<Project id=%r, name=%r>' % (self.project_id, self.name)
 
-    def to_dict(self):
-        return project_schema.dump(self)
+
+class ProjectSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Project
+
+
+project_schema = ProjectSchema()

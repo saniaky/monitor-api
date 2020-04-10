@@ -4,8 +4,8 @@ from flask import request, Blueprint, jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 from database.db import db
-from database.project import Project
-from database.user import User
+from database.project import Project, project_schema
+from database.user import User, user_schema
 from database.user_project import UserProjectRole, UserProject
 from routes.auth_validation import RegisterSchema, LoginSchema, UpdateProfileSchema
 
@@ -32,7 +32,7 @@ def login():
     expires30days = datetime.timedelta(days=30)
     access_token = create_access_token(identity=str(user.user_id), expires_delta=expires7days)
     refresh_token = create_access_token(identity=str(user.user_id), expires_delta=expires30days)
-    return {'access_token': access_token, 'refresh_token': refresh_token}, 200
+    return jsonify({'access_token': access_token, 'refresh_token': refresh_token}), 200
 
 
 @auth.route('/register', methods=['POST'])
@@ -49,7 +49,7 @@ def register():
     project.members.extend([UserProject(user=user, project=project, role=UserProjectRole.ADMIN)])
     db.session.add(user)
     db.session.commit()
-    return user.to_dict(), 201
+    return jsonify(user_schema.dump(user)), 201
 
 
 @auth.route('/me', methods=['GET'])
@@ -59,7 +59,7 @@ def me():
     user = User.query.get(user_id)
     if not user:
         return {'error': 'Such user no longer exist.'}, 400
-    return user.to_dict()
+    return jsonify(user_schema.dump(user))
 
 
 @auth.route('/me', methods=['PUT'])
@@ -72,4 +72,13 @@ def update_profile():
     user_id = get_jwt_identity()
     User.query.filter_by(user_id=user_id).update(body)
     db.session.commit()
-    return {'result': 'ok'}
+    return jsonify({'result': True})
+
+
+@auth.route('/me/projects', methods=['GET'])
+@jwt_required
+def get_projects():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).scalar()
+    print(user.projects)
+    return jsonify(project_schema.dump(user.projects, many=True))

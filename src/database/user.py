@@ -1,27 +1,18 @@
 from datetime import datetime
 
 from flask_bcrypt import generate_password_hash, check_password_hash
-from marshmallow import Schema
-from sqlalchemy import ForeignKey
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from .db import db
-#
+
+
+# Fields to expose
 # user_project_table = db.Table(
 #     'user_project',
 #     db.Column('user_id', db.Integer, db.ForeignKey('user.user_id')),
 #     db.Column('project_id', db.Integer, db.ForeignKey('project.project_id')),
 # )
-
-
-# Fields to expose
-class UserSchema(Schema):
-    class Meta:
-        fields = (
-            'user_id', 'email', 'first_name', 'last_name', 'avatar_url',
-            'created_at', 'last_login', 'password_age')
-
-
-user_schema = UserSchema()
 
 
 class User(db.Model):
@@ -51,14 +42,23 @@ class User(db.Model):
     #     backref=db.backref('members', lazy=True)
     # )
 
+    # bidirectional attribute/collection of "user"/"user_keywords"
+    projects = association_proxy('user_project', 'project')
+
     def hash_password(self):
         self.password = generate_password_hash(self.password).decode('utf8')
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-    def to_dict(self):
-        return user_schema.dump(self)
-
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User id=%r, first_name=%r>' % (self.user_id, self.first_name)
+
+
+class UserSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        exclude = ("password", 'password_reset_token')
+
+
+user_schema = UserSchema()

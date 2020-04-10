@@ -66,7 +66,7 @@ CREATE TABLE `user_project`
 (
     `user_id`    bigint                  NOT NULL,
     `project_id` bigint                  NOT NULL,
-    `role`       enum ('admin','member') NOT NULL DEFAULT 'member',
+    `role`       enum ('ADMIN','MEMBER') NOT NULL DEFAULT 'MEMBER',
 
     CONSTRAINT `fk_project_team_project_id` FOREIGN KEY (`project_id`)
         REFERENCES `project` (`project_id`) ON DELETE CASCADE,
@@ -123,7 +123,7 @@ CREATE TABLE `incident_update`
 (
     `update_id`   bigint                                                      NOT NULL AUTO_INCREMENT,
     `incident_id` bigint                                                      NOT NULL,
-    `status`      enum ('investigating','identified','monitoring','resolved') NOT NULL,
+    `status`      enum ('INVESTIGATING','IDENTIFIED','MONITORING','RESOLVED') NOT NULL,
     `created_at`  datetime                                                    NOT NULL,
 
     PRIMARY KEY (`update_id`),
