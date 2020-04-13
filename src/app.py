@@ -7,7 +7,6 @@ from flask_jwt_extended import JWTManager
 
 from database.db import initialize_db
 from routes.routes import init_routes
-from services.mail_service import init_mail
 
 load_dotenv()
 
@@ -20,6 +19,5 @@ bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 initialize_db(app)
 init_routes(app)
-init_mail(app)
 
 app.run()

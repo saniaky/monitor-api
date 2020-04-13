@@ -1,5 +1,5 @@
 # Load env variables
-export $(grep -v '^#' .env | xargs)
+export $(grep -v '^#' example.env | xargs)
 
 docker run --rm --network host \
   -v "${PWD}/db/migrations:/flyway/sql" \

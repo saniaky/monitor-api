@@ -4,12 +4,14 @@ from werkzeug.exceptions import HTTPException
 from .apps import apps
 from .auth import auth
 from .index import index
+from .me import me
 from .projects import projects
 
 
 def init_routes(app):
     app.register_blueprint(index, url_prefix='/api')
     app.register_blueprint(auth, url_prefix='/api')
+    app.register_blueprint(me, url_prefix='/api')
     app.register_blueprint(projects, url_prefix='/api/projects')
     app.register_blueprint(apps, url_prefix='/api/projects/<int:project_id>/apps')
 

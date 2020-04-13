@@ -16,6 +16,8 @@ class UserProject(db.Model):
     user_id = db.Column(db.BigInteger, db.ForeignKey(User.user_id), primary_key=True)
     project_id = db.Column(db.BigInteger, db.ForeignKey(Project.project_id), primary_key=True)
     role = db.Column(db.Enum(UserProjectRole), nullable=False, default=UserProjectRole.MEMBER)
+    # added_at?
+    # invited_by?
 
-    member = relationship(User, backref=backref("user_project"), lazy='joined')
-    project = relationship(Project, backref=backref("user_project"), lazy='joined')
+    user = relationship(User, backref=backref("user_project", cascade="all, delete-orphan"), lazy='joined')
+    project = relationship(Project, backref=backref("user_project", cascade="all, delete-orphan"), lazy='joined')

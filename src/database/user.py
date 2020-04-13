@@ -51,8 +51,8 @@ class UserSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = User
         exclude = (
-            'password', 'password_reset_token',
-            'password_reset_expires', 'failed_login_attempts'
+            'email_verification_token',
+            'password', 'password_reset_token', 'password_reset_expires', 'failed_login_attempts'
         )
 
 
