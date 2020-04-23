@@ -1,0 +1,8 @@
+.idea/
+db/
+venv
+
+*.iml
+*.env
+*.sh
+*.md
