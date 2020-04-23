@@ -2,39 +2,55 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from database.db import db
-from database.project import Project
+from database.project import Project, project_schema
+from database.user import User, short_user_schema
 
 projects = Blueprint('projects', __name__)
 
 
+@projects.route('/projects', methods=['GET'])
 @jwt_required
-@projects.route('/', methods=['GET'])
-def get_all():
-    Project.query.filter_by({})
-    return jsonify({'projects': list(map(lambda dev: dev.to_dict(), Project.query.all()))})
+def get_projects():
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).scalar()
+    return jsonify(project_schema.dump(user.projects, many=True))
 
 
+@projects.route('/projects', methods=['POST'])
 @jwt_required
-@projects.route('/<int:entity_id>', methods=['GET'])
+def create_project():
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    app = Project(**body)
+    db.session.add(app)
+    db.session.commit()
+    return jsonify(app.to_dict())
+
+
+@projects.route('/projects/<int:project_id>', methods=['PUT'])
+@jwt_required
+def update_project(project_id):
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    Project.query.filter_by(project_id=project_id).update(body)
+    db.session.commit()
+    print(body)
+    return jsonify({'result': True})
+
+
+@projects.route('/projects/<int:entity_id>', methods=['GET'])
+@jwt_required
 def read(entity_id):
     # TODO query for user
     return jsonify({entity_id: 'entity_id'})
 
 
+@projects.route('/projects/<int:entity_id>', methods=['PUT'])
 @jwt_required
-@projects.route('/', methods=['POST'])
-def create():
-    user_id = get_jwt_identity()
-    body = request.get_json()
-    app = Project(**body)
-    db.session.add(app)
-
-    db.session.commit()
-    return jsonify(app.to_dict())
-
-
-@jwt_required
-@projects.route('/<int:entity_id>', methods=['PUT'])
 def update(entity_id):
     new_name = request.json['name']
     project = Project.query.get(entity_id)
@@ -46,12 +62,56 @@ def update(entity_id):
     return jsonify(project.to_dict())
 
 
+@projects.route('/projects/<int:entity_id>', methods=['DELETE'])
 @jwt_required
-@projects.route('/<int:entity_id>', methods=['DELETE'])
 def delete(entity_id):
     db.session.delete(Project.query.get(entity_id))
     db.session.commit()
     return jsonify({'result': True})
+
+
+@projects.route('/projects/<int:project_id>/incidents', methods=['GET'])
+@jwt_required
+def get_incidents(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    return jsonify(short_user_schema.dump(project.members, many=True))
+
+
+@projects.route('/projects/<int:project_id>/components', methods=['GET'])
+@jwt_required
+def get_components(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    return jsonify(short_user_schema.dump(project.members, many=True))
+
+
+@projects.route('/projects/<int:project_id>/subscribers', methods=['GET'])
+@jwt_required
+def get_subscribers(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    return jsonify(short_user_schema.dump(project.members, many=True))
+
+
+@projects.route('/projects/<int:project_id>/members', methods=['GET'])
+@jwt_required
+def get_project_members(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    return jsonify(short_user_schema.dump(project.members, many=True))
 
 
 def is_id_exist(project_id):

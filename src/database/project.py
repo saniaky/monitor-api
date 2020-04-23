@@ -5,7 +5,7 @@ from .db import db
 
 
 class Project(db.Model):
-    project_id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(45), unique=True, nullable=False)
 
     members = association_proxy('user_project', 'user')

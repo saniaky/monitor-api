@@ -2,6 +2,12 @@ version: '3.1'
 
 services:
 
+  api:
+    image: nginx
+    restart: always
+    environment:
+      VIRTUAL_HOST: monitor.saniaky.com
+
   db:
     image: mysql:5.7
     container_name: monitor_db

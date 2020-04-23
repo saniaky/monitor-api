@@ -42,6 +42,7 @@ CREATE TABLE `project`
 (
     `project_id` bigint      NOT NULL AUTO_INCREMENT,
     `name`       varchar(15) NOT NULL,
+    `created_at` datetime    NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY (`project_id`)
 );
@@ -75,45 +76,31 @@ CREATE TABLE `user_project`
 );
 
 
-CREATE TABLE `app`
-(
-    `app_id`            bigint       NOT NULL AUTO_INCREMENT,
-    `project_id`        bigint       NOT NULL,
-    `name`              varchar(45)  NOT NULL,
-    `checks_per_minute` int          NOT NULL,
-    `current_url`       varchar(512) NOT NULL,
-
-    PRIMARY KEY (`app_id`),
-    CONSTRAINT `fk_app_project_id` FOREIGN KEY (`project_id`)
-        REFERENCES `project` (`project_id`) ON DELETE RESTRICT
-);
-
-
 CREATE TABLE `maintenance`
 (
     `maintenance_id` bigint       NOT NULL AUTO_INCREMENT,
-    `app_id`         bigint       NOT NULL,
+    `project_id`     bigint       NOT NULL,
     `schedule`       datetime     NOT NULL,
     `description`    varchar(512) NOT NULL,
 
     PRIMARY KEY (`maintenance_id`),
-    CONSTRAINT `fk_maintenance_app_id` FOREIGN KEY (`app_id`)
-        REFERENCES `app` (`app_id`) ON DELETE CASCADE
+    CONSTRAINT `fk_maintenance_project_id` FOREIGN KEY (`project_id`)
+        REFERENCES `project` (`project_id`) ON DELETE CASCADE
 );
 
 
 CREATE TABLE `incident`
 (
     `incident_id` bigint      NOT NULL AUTO_INCREMENT,
-    `app_id`      bigint      NOT NULL,
+    `project_id`  bigint      NOT NULL,
     `author_id`   bigint      NOT NULL,
     `title`       varchar(45) NOT NULL,
     `time`        datetime    NOT NULL,
     `components`  varchar(45) NULL,
 
     PRIMARY KEY (`incident_id`),
-    CONSTRAINT `fk_incident_app_id` FOREIGN KEY (`app_id`)
-        REFERENCES `app` (`app_id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_incident_project_id` FOREIGN KEY (`project_id`)
+        REFERENCES `project` (`project_id`) ON DELETE CASCADE,
     CONSTRAINT `fk_incident_author_id` FOREIGN KEY (`author_id`)
         REFERENCES `user` (`user_id`) ON DELETE RESTRICT
 );
@@ -123,6 +110,7 @@ CREATE TABLE `incident_update`
 (
     `update_id`   bigint                                                      NOT NULL AUTO_INCREMENT,
     `incident_id` bigint                                                      NOT NULL,
+    `title`       varchar(45)                                                 NOT NULL,
     `status`      enum ('INVESTIGATING','IDENTIFIED','MONITORING','RESOLVED') NOT NULL,
     `created_at`  datetime                                                    NOT NULL,
 

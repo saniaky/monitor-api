@@ -38,5 +38,5 @@ class RegisterSchema(Schema):
 class UpdateProfileSchema(Schema):
     first_name = fields.Str(required=False, validate=first_name_validate)
     last_name = fields.Str(required=False, validate=last_name_validate)
-    password = fields.Str(required=False, validate=password_validate)
-    avatar_url = fields.Str(required=False)
+    password = fields.Str(required=False, validate=password_validate, allow_none=True)
+    avatar_url = fields.Str(required=False, allow_none=True)
