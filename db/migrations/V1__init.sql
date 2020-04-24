@@ -52,9 +52,9 @@ CREATE TABLE `audit_log`
 (
     `event_id`   bigint      NOT NULL AUTO_INCREMENT,
     `project_id` bigint      NOT NULL,
-    `user_id`    bigint      NOT NULL, -- NULL - in case if user will be deleted
-    `user_ip`    varchar(10) NOT NULL,
-    `time`       datetime    NOT NULL,
+    `user_id`    bigint      NULL, -- NULL - in case if user will be deleted
+    `user_ip`    varchar(10) NULL,
+    `time`       datetime    NOT NULL DEFAULT NOW(),
     `action`     varchar(45) NOT NULL,
 
     PRIMARY KEY (`event_id`),
@@ -94,8 +94,7 @@ CREATE TABLE `incident`
     `incident_id` bigint      NOT NULL AUTO_INCREMENT,
     `project_id`  bigint      NOT NULL,
     `author_id`   bigint      NOT NULL,
-    `title`       varchar(45) NOT NULL,
-    `time`        datetime    NOT NULL,
+    `name`        varchar(45) NOT NULL,
     `components`  varchar(45) NULL,
 
     PRIMARY KEY (`incident_id`),
@@ -110,7 +109,7 @@ CREATE TABLE `incident_update`
 (
     `update_id`   bigint                                                      NOT NULL AUTO_INCREMENT,
     `incident_id` bigint                                                      NOT NULL,
-    `title`       varchar(45)                                                 NOT NULL,
+    `message`     varchar(512)                                                NOT NULL,
     `status`      enum ('INVESTIGATING','IDENTIFIED','MONITORING','RESOLVED') NOT NULL,
     `created_at`  datetime                                                    NOT NULL,
 

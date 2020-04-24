@@ -4,6 +4,7 @@ from flask_bcrypt import generate_password_hash, check_password_hash
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from .country import Country
 from .db import db
 
 
@@ -20,7 +21,7 @@ class User(db.Model):
     first_name = db.Column(db.String(45), nullable=False)
     last_name = db.Column(db.String(45), nullable=False)
     avatar_url = db.Column(db.String(512), nullable=True)
-    # country_id = db.Column(db.BigInteger, ForeignKey('country_id'))
+    country_id = db.Column(db.String(2), db.ForeignKey(Country.iso2), nullable=True)
     email = db.Column(db.String(45), nullable=False)
     email_verified = db.Column(db.Boolean, default=False, nullable=False)
     email_verification_token = db.Column(db.String(45))
