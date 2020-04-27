@@ -8,7 +8,7 @@ from .incident import Incident
 class Project(db.Model):
     project_id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(45), unique=True, nullable=False)
-    incidents = db.relationship(Incident, backref='project', lazy=True)
+    incidents = db.relationship(Incident, backref='project', lazy=True, cascade="all,delete")
     members = association_proxy('user_project', 'user')
 
     def __repr__(self):

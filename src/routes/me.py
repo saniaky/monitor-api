@@ -2,7 +2,9 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from database.db import db
+from database.project import Project
 from database.user import User, user_schema
+from database.user_project import UserProject
 from routes.auth_validation import UpdateProfileSchema
 
 me = Blueprint('me', __name__)
@@ -30,3 +32,11 @@ def update_profile():
     db.session.commit()
     return jsonify({'result': True})
 
+
+@me.route('/me/subquery', methods=['GET'])
+def subquery_test():
+    # user_id = get_jwt_identity()
+    subquery = db.session.query(UserProject.user_id).filter(UserProject.user_id == 1).subquery()
+    query = db.session.query(Project).filter(Project.project_id.in_(subquery))
+    print(query)
+    return jsonify({'result': query})

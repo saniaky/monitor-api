@@ -11,7 +11,7 @@ class Incident(db.Model):
     name = db.Column(db.String(45), nullable=False)
     status = db.Column(db.String(45), nullable=False)
     components = db.Column(db.String(45), nullable=True)
-    updates = db.relationship(IncidentUpdate, backref='incident', lazy=True)
+    updates = db.relationship(IncidentUpdate, backref='incident', lazy=True, cascade="all,delete")
 
     def __repr__(self):
         return '<Incident id=%r, name=%r>' % (self.incident_id, self.name)

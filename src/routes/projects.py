@@ -48,18 +48,18 @@ def update_project(project_id):
     return jsonify({'result': True})
 
 
-@projects.route('/projects/<int:entity_id>', methods=['GET'])
+@projects.route('/projects/<int:project_id>', methods=['GET'])
 @jwt_required
-def read(entity_id):
-    # TODO query for user
-    return jsonify({entity_id: 'entity_id'})
+def read(project_id):
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    return jsonify(project.to_dict())
 
 
-@projects.route('/projects/<int:entity_id>', methods=['PUT'])
+@projects.route('/projects/<int:project_id>', methods=['PUT'])
 @jwt_required
-def update(entity_id):
+def update(project_id):
     new_name = request.json['name']
-    project = Project.query.get(entity_id)
+    project = Project.query.get(project_id)
     if not project:
         return {'error': 'Project not found'}, 400
     project.name = new_name
@@ -68,10 +68,11 @@ def update(entity_id):
     return jsonify(project.to_dict())
 
 
-@projects.route('/projects/<int:entity_id>', methods=['DELETE'])
+@projects.route('/projects/<int:project_id>', methods=['DELETE'])
 @jwt_required
-def delete(entity_id):
-    db.session.delete(Project.query.get(entity_id))
+def delete(project_id):
+    project = Project.query.get(project_id)
+    db.session.delete(project)
     db.session.commit()
     return jsonify({'result': True})
 
@@ -81,11 +82,15 @@ def delete(entity_id):
 def get_incidents(project_id):
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).first_or_404()
-    status = request.args.get('status') or 'OPEN'
     project = Project.query.filter_by(project_id=project_id).first_or_404()
     if user not in project.members:
         return jsonify({'error': 'You dont have rights.'}), 401
-    incidents = filter(lambda x: x.status == status, project.incidents)
+    status = request.args.get('status')
+    if status is not None:
+        incidents = Incident.query.filter_by(project_id=project_id, status=status)
+    else:
+        incidents = Incident.query.filter_by(project_id=project_id)
+
     return jsonify(incident_schema.dump(incidents, many=True))
 
 

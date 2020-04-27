@@ -58,4 +58,4 @@ class UserSchema(SQLAlchemyAutoSchema):
 
 
 user_schema = UserSchema()
-short_user_schema = UserSchema(only=('user_id', 'first_name', 'last_name', 'avatar_url'))
+short_user_schema = UserSchema(only=('user_id', 'first_name', 'last_name', 'email', 'avatar_url'))
