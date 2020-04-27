@@ -81,10 +81,28 @@ def delete(entity_id):
 def get_incidents(project_id):
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).first_or_404()
+    status = request.args.get('status') or 'OPEN'
     project = Project.query.filter_by(project_id=project_id).first_or_404()
     if user not in project.members:
         return jsonify({'error': 'You dont have rights.'}), 401
-    return jsonify(incident_schema.dump(project.incidents, many=True))
+    incidents = filter(lambda x: x.status == status, project.incidents)
+    return jsonify(incident_schema.dump(incidents, many=True))
+
+
+@projects.route('/projects/<int:project_id>/incidents/<int:incident_id>', methods=['PUT'])
+@jwt_required
+def update_incident(project_id, incident_id):
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    incident = Incident.query.filter_by(incident_id=incident_id).first_or_404()
+    incident.status = body['status'] or 'OPEN'
+    db.session.add(incident)
+    db.session.commit()
+    return jsonify(incident_schema.dump(incident))
 
 
 @projects.route('/projects/<int:project_id>/incidents', methods=['POST'])
@@ -99,6 +117,7 @@ def create_incident(project_id):
     new_incident = Incident(
         name=body['name'],
         components=body['components'],
+        status='OPEN',
         project_id=project_id,
         author_id=user_id)
     incident_update = IncidentUpdate(

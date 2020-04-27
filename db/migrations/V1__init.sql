@@ -76,26 +76,14 @@ CREATE TABLE `user_project`
 );
 
 
-CREATE TABLE `maintenance`
-(
-    `maintenance_id` bigint       NOT NULL AUTO_INCREMENT,
-    `project_id`     bigint       NOT NULL,
-    `schedule`       datetime     NOT NULL,
-    `description`    varchar(512) NOT NULL,
-
-    PRIMARY KEY (`maintenance_id`),
-    CONSTRAINT `fk_maintenance_project_id` FOREIGN KEY (`project_id`)
-        REFERENCES `project` (`project_id`) ON DELETE CASCADE
-);
-
-
 CREATE TABLE `incident`
 (
-    `incident_id` bigint      NOT NULL AUTO_INCREMENT,
-    `project_id`  bigint      NOT NULL,
-    `author_id`   bigint      NOT NULL,
-    `name`        varchar(45) NOT NULL,
-    `components`  varchar(45) NULL,
+    `incident_id` bigint                  NOT NULL AUTO_INCREMENT,
+    `project_id`  bigint                  NOT NULL,
+    `author_id`   bigint                  NOT NULL,
+    `name`        varchar(45)             NOT NULL,
+    `status`      enum ('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
+    `components`  varchar(45)             NULL,
 
     PRIMARY KEY (`incident_id`),
     CONSTRAINT `fk_incident_project_id` FOREIGN KEY (`project_id`)
