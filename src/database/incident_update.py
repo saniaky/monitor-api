@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+
 from .db import db
 
 
@@ -12,3 +14,11 @@ class IncidentUpdate(db.Model):
 
     def __repr__(self):
         return '<IncidentUpdate id=%r, name=%r>' % (self.update_id, self.message)
+
+
+class IncidentUpdateSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = IncidentUpdate
+
+
+incident_update_schema = IncidentUpdateSchema()

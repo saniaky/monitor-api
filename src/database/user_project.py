@@ -21,3 +21,6 @@ class UserProject(db.Model):
 
     user = relationship(User, backref=backref("user_project", cascade="all, delete-orphan"), lazy='joined')
     project = relationship(Project, backref=backref("user_project", cascade="all, delete-orphan"), lazy='joined')
+
+    def __repr__(self):
+        return '<UserProject user_id=%r, project_id=%r, role=%r>' % (self.user_id, self.project_id, self.role)

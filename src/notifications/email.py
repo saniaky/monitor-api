@@ -45,3 +45,14 @@ def password_changed(user):
         'name': user.first_name
     }
     sg.send(message)
+
+
+def send_invite_member(from_user, to_email, token, message_text):
+    message = Mail(from_email=os.environ.get('FROM_EMAIL'), to_emails=to_email)
+    message.template_id = 'd-d1fc8d063c1c464792606f70fe6acfbf'
+    message.dynamic_template_data = {
+        'inviter_name': from_user.first_name,
+        'message': message_text,
+        'url': 'http://localhost:3000/invitation?token=' + token
+    }
+    sg.send(message)

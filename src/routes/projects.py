@@ -3,10 +3,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from database.db import db
 from database.incident import Incident, incident_schema
-from database.incident_update import IncidentUpdate
+from database.incident_update import IncidentUpdate, IncidentUpdateSchema
 from database.project import Project, project_schema
+from database.project_invite import ProjectInvite, project_invite_schema
 from database.user import User, short_user_schema
 from database.user_project import UserProject, UserProjectRole
+from notifications.email import send_invite_member
+from utils import random_str
 
 projects = Blueprint('projects', __name__)
 
@@ -78,20 +81,57 @@ def delete(project_id):
 
 
 @projects.route('/projects/<int:project_id>/incidents', methods=['GET'])
-@jwt_required
 def get_incidents(project_id):
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    status = request.args.get('status')
+    detailed = request.args.get('detailed')
+    if status is not None:
+        incidents = Incident.query.filter_by(project_id=project_id, status=status)
+    else:
+        incidents = Incident.query.filter_by(project_id=project_id)
+    return jsonify(incident_schema.dump(incidents, many=True))
+
+
+@projects.route('/projects/<int:project_id>/incidents/<int:incident_id>', methods=['GET'])
+def get_incident_updates(project_id, incident_id):
+    incident = Incident.query.filter_by(incident_id=incident_id).first_or_404()
+    updates = IncidentUpdate.query.filter_by(incident_id=incident_id).all()
+    incident_update_schema = IncidentUpdateSchema()
+    return jsonify({
+        'incident': incident_schema.dump(incident),
+        'updates': incident_update_schema.dump(updates, many=True)
+    })
+
+
+@projects.route('/projects/<int:project_id>/incidents/<int:incident_id>/updates', methods=['POST'])
+@jwt_required
+def add_incident_update(project_id, incident_id):
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+    incident = Incident.query.filter_by(incident_id=incident_id).first_or_404()
+    update = IncidentUpdate(incident_id=incident_id, message=body['message'], status=body['status'])
+    incident.updates.append(update)
+    db.session.add(incident)
+    db.session.commit()
+    return jsonify({'result': True})
+
+
+@projects.route('/projects/<int:project_id>/incidents/<int:incident_id>/updates/<int:update_id>', methods=['DELETE'])
+@jwt_required
+def delete_incident_update(project_id, incident_id, update_id):
     user_id = get_jwt_identity()
     user = User.query.filter_by(user_id=user_id).first_or_404()
     project = Project.query.filter_by(project_id=project_id).first_or_404()
     if user not in project.members:
         return jsonify({'error': 'You dont have rights.'}), 401
-    status = request.args.get('status')
-    if status is not None:
-        incidents = Incident.query.filter_by(project_id=project_id, status=status)
-    else:
-        incidents = Incident.query.filter_by(project_id=project_id)
-
-    return jsonify(incident_schema.dump(incidents, many=True))
+    update = IncidentUpdate.query.filter_by(update_id=update_id).first_or_404()
+    db.session.delete(update)
+    db.session.commit()
+    return jsonify({'result': True})
 
 
 @projects.route('/projects/<int:project_id>/incidents/<int:incident_id>', methods=['PUT'])
@@ -166,7 +206,69 @@ def get_project_members(project_id):
     project = Project.query.filter_by(project_id=project_id).first_or_404()
     if user not in project.members:
         return jsonify({'error': 'You dont have rights.'}), 401
-    return jsonify(short_user_schema.dump(project.members, many=True))
+
+    response = []
+    for up in project.user_project:
+        res = short_user_schema.dump(up.user)
+        res.update({'role': up.role.value})
+        response.append(res)
+    return jsonify(response)
+
+
+@projects.route('/projects/<int:project_id>/invites', methods=['POST'])
+@jwt_required
+def invite_member(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+
+    # Create invite
+    body = request.get_json()
+    token = random_str()
+    invite = ProjectInvite(
+        sender_id=user_id, project_id=project_id, token=token,
+        email=body['email'], message=body['message'], role=body['role'],
+    )
+    db.session.add(invite)
+    db.session.commit()
+
+    # Send email
+    send_invite_member(user, body['email'], token, body['message'])
+
+    # Construct response
+    return jsonify(project_invite_schema.dump(invite))
+
+
+@projects.route('/projects/<int:project_id>/invites', methods=['GET'])
+@jwt_required
+def get_invites(project_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+
+    # Get invites
+    invites = ProjectInvite.query.filter_by(project_id=project_id).all()
+    return jsonify(project_invite_schema.dump(invites, many=True))
+
+
+@projects.route('/projects/<int:project_id>/invites/<int:invite_id>', methods=['DELETE'])
+@jwt_required
+def delete_invite(project_id, invite_id):
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(user_id=user_id).first_or_404()
+    project = Project.query.filter_by(project_id=project_id).first_or_404()
+    if user not in project.members:
+        return jsonify({'error': 'You dont have rights.'}), 401
+
+    # Get invites
+    invite = ProjectInvite.query.filter_by(invite_id=invite_id).first_or_404()
+    db.session.delete(invite)
+    db.session.commit()
+    return jsonify({'result': True})
 
 
 def is_id_exist(project_id):

@@ -1,7 +1,8 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow_sqlalchemy.fields import Nested
 
 from .db import db
-from .incident_update import IncidentUpdate
+from .incident_update import IncidentUpdate, IncidentUpdateSchema
 
 
 class Incident(db.Model):
@@ -20,6 +21,11 @@ class Incident(db.Model):
 class IncidentSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Incident
+        include_relationships = True
+        load_instance = True
+
+    # Override updates field to use a nested representation rather than pks
+    updates = Nested(IncidentUpdateSchema, many=True)
 
 
 incident_schema = IncidentSchema()

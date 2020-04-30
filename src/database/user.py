@@ -20,7 +20,6 @@ class User(db.Model):
     user_id = db.Column(db.BigInteger, primary_key=True)
     first_name = db.Column(db.String(45), nullable=False)
     last_name = db.Column(db.String(45), nullable=False)
-    avatar_url = db.Column(db.String(512), nullable=True)
     country_id = db.Column(db.String(2), db.ForeignKey(Country.iso2), nullable=True)
     email = db.Column(db.String(45), nullable=False)
     email_verified = db.Column(db.Boolean, default=False, nullable=False)
@@ -58,4 +57,4 @@ class UserSchema(SQLAlchemyAutoSchema):
 
 
 user_schema = UserSchema()
-short_user_schema = UserSchema(only=('user_id', 'first_name', 'last_name', 'email', 'avatar_url'))
+short_user_schema = UserSchema(only=('user_id', 'first_name', 'last_name', 'email'))
